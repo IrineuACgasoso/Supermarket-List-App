@@ -85,7 +85,7 @@ def novo_produto():
     })
 
 
-@produtos_bp.route("/editar_produto/<int:produto_id>", methods=["POST"])
+@produtos_bp.route("/api/editar_produto/<int:produto_id>", methods=["POST"])
 @login_required
 @limiter.limit("10 per minute")
 def editar_produto(produto_id):
