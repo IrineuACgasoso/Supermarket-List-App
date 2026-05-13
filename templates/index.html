@@ -605,6 +605,16 @@ function salvarEdicaoProduto() {
         });
 }
 
+// Certifica-te que o input de novo produto tem o nome correto ou ID
+document.getElementsByName('nome_produto')[0].addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        // Se já criaste a função cadastrarProdutoAJAX(), chama-a aqui:
+        if (typeof cadastrarProdutoAJAX === "function") {
+            cadastrarProdutoAJAX();
+        }
+    }
+});
 
 // ─────────────────────────────────────────
 // MENU DE CATEGORIA (⋯)
@@ -725,6 +735,13 @@ function abrirModalEditarCategoria(btn) {
 function abrirModal(id) { document.getElementById(id).classList.add('aberto'); }
 function fecharModal(id) { document.getElementById(id).classList.remove('aberto'); }
 
+document.getElementById('edit-nome-produto').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Impede o comportamento padrão de atualizar a página
+        salvarEdicaoProduto(); // Chama a sua função que já está funcionando
+    }
+});
+
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape')
         ['modalEdicao','modalNovaCategoria','modalEditarCategoria']
@@ -798,6 +815,9 @@ function mostrarPreview(input, preview, texto, dz) {
         leitor.readAsDataURL(input.files[0]);
     }
 }
+
+
+
 </script>
 
 <script>
