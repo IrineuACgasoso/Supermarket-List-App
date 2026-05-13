@@ -80,7 +80,6 @@
             font-size: 14px;
             font-weight: 600;
             transition: all 0.2s;
-            /* reset global button styles */
             width: auto;
             margin-top: 0;
         }
@@ -196,7 +195,7 @@
         }
         .item-lista:last-child { border-bottom: none; }
 
-        /* ── BOTÃO REMOVER (fix: tamanho correto) ── */
+        /* ── BOTÃO REMOVER ── */
         .btn-remover {
             background-color: #e74c3c;
             padding: 6px 14px;
@@ -207,7 +206,6 @@
             cursor: pointer;
             font-family: inherit;
             font-weight: 600;
-            /* sobrescreve o width:100% e margin-top global de button */
             width: auto;
             margin-top: 0;
             flex-shrink: 0;
@@ -258,7 +256,13 @@
         }
         .modal-label { font-size: 13px; color: #aaa; margin-bottom: 2px; }
 
-        /* ── GRID DE CHECKBOXES (seleção de produtos para categoria) ── */
+        /* ── MENSAGEM DE ERRO NO MODAL ── */
+        .modal-erro {
+            font-size: 13px; color: #ff7070; text-align: center;
+            display: none; margin-top: -4px;
+        }
+
+        /* ── GRID DE CHECKBOXES ── */
         .checkbox-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -297,9 +301,7 @@
 
 <h1>🛒 Nossa Lista de Mercado</h1>
 
-<!-- ══════════════════════════════
-     LISTA DE COMPRAS (topo)
-══════════════════════════════ -->
+<!-- LISTA DE COMPRAS -->
 <div class="caixa-lista" id="caixaLista" style="margin-bottom: 30px;">
     <h2 style="margin-top:0">📝 Para Comprar:</h2>
     <div id="listaCompras">
@@ -316,19 +318,15 @@
 
 <hr style="width:100%;border:1px solid #333;margin:10px 0 30px 0;">
 
-<!-- ══════════════════════════════
-     CATÁLOGO
-══════════════════════════════ -->
+<!-- CATÁLOGO -->
 <h2>O que está faltando?</h2>
 
-<!-- Barra de pesquisa + botão nova categoria -->
 <div class="search-row">
     <input type="text" id="barraPesquisa" placeholder="🔍 Pesquisar no catálogo..."
            oninput="filtrarProdutos()">
     <button class="btn-nova-cat" onclick="abrirModalNovaCategoria()">🏷️ Nova categoria</button>
 </div>
 
-<!-- Tabs de categoria -->
 {% if categorias %}
 <div class="categorias-wrapper" id="categoriasWrapper">
     <button class="tab-cat active" id="tab-todos" onclick="filtrarCategoria(0, this)">Todos</button>
@@ -359,7 +357,6 @@
 </div>
 {% endif %}
 
-<!-- Grid do catálogo -->
 <div class="catalogo" id="catalogoProdutos">
     {% for produto in produtos %}
     <div class="produto-card"
@@ -412,36 +409,29 @@
 </div>
 
 
-<!-- ══════════════════════════════
-     MODAL — Editar produto
-══════════════════════════════ -->
+<!-- MODAL — Editar produto -->
 <div class="modal-overlay" id="modalEdicao">
     <div class="modal-box">
         <button class="modal-fechar" onclick="fecharModal('modalEdicao')">✕</button>
         <h3>✏️ Editar Produto</h3>
-        <form id="formEdicao" action="" method="POST" enctype="multipart/form-data"
-              style="display:flex;flex-direction:column;gap:10px;" onsubmit="salvarScroll()">
-            <p class="modal-label">Imagem atual:</p>
-            <img id="modalImgAtual" class="modal-img-atual" src="" alt="">
-            <p class="modal-label">Nome:</p>
-            <input type="text" name="novo_nome" id="modalNomeInput" required>
-            <div id="dropzone-edit" class="dropzone">
-                <p id="dropzone-texto-edit" style="margin:0;font-size:14px;">
-                    📁 Nova foto (opcional)
-                </p>
-                <input type="file" name="imagem_produto" id="imagem_produto_edit"
-                       accept="image/*" style="display:none;">
-            </div>
-            <img id="preview-imagem-edit" class="preview-imagem" src="" alt="">
-            <button type="submit" style="background-color:#f39c12;">💾 Salvar alterações</button>
-        </form>
+        <p class="modal-label">Imagem atual:</p>
+        <img id="modalImgAtual" class="modal-img-atual" src="" alt="">
+        <p class="modal-label">Nome:</p>
+        <input type="text" id="modalNomeInput" required>
+        <div id="dropzone-edit" class="dropzone">
+            <p id="dropzone-texto-edit" style="margin:0;font-size:14px;">
+                📁 Nova foto (opcional)
+            </p>
+            <input type="file" id="imagem_produto_edit" accept="image/*" style="display:none;">
+        </div>
+        <img id="preview-imagem-edit" class="preview-imagem" src="" alt="">
+        <p class="modal-erro" id="modalEdicaoErro"></p>
+        <button id="btnSalvarEdicao" style="background-color:#f39c12;">💾 Salvar alterações</button>
     </div>
 </div>
 
 
-<!-- ══════════════════════════════
-     MODAL — Nova categoria
-══════════════════════════════ -->
+<!-- MODAL — Nova categoria -->
 <div class="modal-overlay" id="modalNovaCategoria">
     <div class="modal-box largo">
         <button class="modal-fechar" onclick="fecharModal('modalNovaCategoria')">✕</button>
@@ -461,9 +451,7 @@
 </div>
 
 
-<!-- ══════════════════════════════
-     MODAL — Editar categoria
-══════════════════════════════ -->
+<!-- MODAL — Editar categoria -->
 <div class="modal-overlay" id="modalEditarCategoria">
     <div class="modal-box largo">
         <button class="modal-fechar" onclick="fecharModal('modalEditarCategoria')">✕</button>
@@ -492,7 +480,6 @@ window.addEventListener('DOMContentLoaded', () => {
     const y = sessionStorage.getItem('scrollY');
     if (y !== null) { window.scrollTo(0, parseInt(y)); sessionStorage.removeItem('scrollY'); }
 
-    // Ordena catálogo alfabeticamente
     const catalogo = document.getElementById('catalogoProdutos');
     const cartoes = Array.from(catalogo.getElementsByClassName('produto-card'));
     cartoes.sort((a, b) =>
@@ -500,21 +487,22 @@ window.addEventListener('DOMContentLoaded', () => {
         b.querySelector('.nome-produto').innerText, 'pt-BR'));
     cartoes.forEach(c => catalogo.appendChild(c));
 
-    // Dropzones
     configurarDropzone('dropzone-novo', 'imagem_produto_novo', 'dropzone-texto-novo', 'preview-imagem-novo');
     configurarDropzone('dropzone-edit', 'imagem_produto_edit', 'dropzone-texto-edit', 'preview-imagem-edit');
 
-    // Fecha modais ao clicar fora
     ['modalEdicao','modalNovaCategoria','modalEditarCategoria'].forEach(id => {
         document.getElementById(id).addEventListener('click', function(e) {
             if (e.target === this) fecharModal(id);
         });
     });
+
+    // Botão salvar do modal de edição (AJAX)
+    document.getElementById('btnSalvarEdicao').addEventListener('click', salvarEdicaoProduto);
 });
 
 
 // ─────────────────────────────────────────
-// AJAX — Adicionar / Remover da lista
+// AJAX — Lista de compras
 // ─────────────────────────────────────────
 function adicionarItem(nomeProduto, botao) {
     const card      = botao.closest('.produto-card');
@@ -556,10 +544,73 @@ function renderizarLista(lista) {
 
 
 // ─────────────────────────────────────────
+// AJAX — Editar produto (sem reload)
+// ─────────────────────────────────────────
+let _produtoIdEditando = null;
+
+function salvarEdicaoProduto() {
+    const nome   = document.getElementById('modalNomeInput').value.trim();
+    const imagem = document.getElementById('imagem_produto_edit').files[0];
+    const btn    = document.getElementById('btnSalvarEdicao');
+    const erro   = document.getElementById('modalEdicaoErro');
+
+    erro.style.display = 'none';
+
+    if (!nome) {
+        erro.textContent = 'Nome não pode ser vazio.';
+        erro.style.display = 'block';
+        return;
+    }
+
+    const form = new FormData();
+    form.append('novo_nome', nome);
+    if (imagem) form.append('imagem_produto', imagem);
+
+    btn.disabled    = true;
+    btn.textContent = 'Salvando...';
+
+    fetch(`/api/editar_produto/${_produtoIdEditando}`, { method: 'POST', body: form })
+        .then(r => r.json())
+        .then(dados => {
+            if (dados.erro) {
+                erro.textContent    = dados.erro;
+                erro.style.display  = 'block';
+                btn.disabled        = false;
+                btn.textContent     = '💾 Salvar alterações';
+                return;
+            }
+
+            // Atualiza o card no DOM sem reload
+            const card = document.getElementById(`card-${dados.id}`);
+            card.querySelector('.nome-produto').textContent = dados.nome;
+            card.querySelector('img').src = dados.imagem + '?t=' + Date.now();
+            card.querySelector('.btn-editar-card').dataset.nome = dados.nome;
+            card.querySelector('.btn-editar-card').dataset.img  = dados.imagem;
+            card.querySelector('.btn-excluir-card').href =
+                card.querySelector('.btn-excluir-card').href
+                    .replace(/\/[^/]+$/, '/' + encodeURIComponent(dados.nome));
+            card.querySelector('.btn-excluir-card').dataset.nome = dados.nome;
+            card.querySelector('button[onclick]').setAttribute(
+                'onclick', `adicionarItem('${dados.nome.replace(/'/g,"\\'")}', this)`);
+
+            fecharModal('modalEdicao');
+        })
+        .catch(() => {
+            erro.textContent   = 'Erro de conexão. Tente novamente.';
+            erro.style.display = 'block';
+        })
+        .finally(() => {
+            btn.disabled    = false;
+            btn.textContent = '💾 Salvar alterações';
+        });
+}
+
+
+// ─────────────────────────────────────────
 // MENU DE CATEGORIA (⋯)
 // ─────────────────────────────────────────
 function toggleMenuCategoria(btn) {
-    const dropdown  = btn.nextElementSibling;
+    const dropdown   = btn.nextElementSibling;
     const estaAberto = dropdown.classList.contains('aberto');
     fecharMenusCategoria();
     if (!estaAberto) dropdown.classList.add('aberto');
@@ -570,10 +621,10 @@ function fecharMenusCategoria() {
             .forEach(d => d.classList.remove('aberto'));
 }
 
-// Fecha dropdown ao clicar fora
 document.addEventListener('click', e => {
     if (!e.target.closest('.cat-menu-wrapper')) fecharMenusCategoria();
 });
+
 
 // ─────────────────────────────────────────
 // CONFIRMAÇÃO DE REMOÇÃO
@@ -587,11 +638,10 @@ function confirmarRemocao(tipo, nome) {
 
 
 // ─────────────────────────────────────────
-// FILTRO: texto + categoria combinados
+// FILTRO
 // ─────────────────────────────────────────
 let categoriaAtiva = 0;
 
-// Remove acentos para comparação (feijão == feijao, etc.)
 function normalizar(str) {
     return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
@@ -600,8 +650,8 @@ function filtrarProdutos() {
     const texto   = normalizar(document.getElementById('barraPesquisa').value);
     const cartoes = document.getElementsByClassName('produto-card');
     for (const c of cartoes) {
-        const nome  = normalizar(c.querySelector('.nome-produto').innerText);
-        const cats  = (c.dataset.categorias || '').split(',').filter(Boolean);
+        const nome     = normalizar(c.querySelector('.nome-produto').innerText);
+        const cats     = (c.dataset.categorias || '').split(',').filter(Boolean);
         const passaTxt = nome.includes(texto);
         const passaCat = categoriaAtiva === 0 || cats.includes(String(categoriaAtiva));
         c.style.display = (passaTxt && passaCat) ? '' : 'none';
@@ -620,14 +670,18 @@ function filtrarCategoria(catId, botao) {
 // MODAL — Editar produto
 // ─────────────────────────────────────────
 function abrirModalEdicao(btn) {
-    document.getElementById('formEdicao').action = '/editar_produto/' + btn.dataset.id;
+    _produtoIdEditando = btn.dataset.id;
+
     document.getElementById('modalNomeInput').value = btn.dataset.nome;
     document.getElementById('modalImgAtual').src    = btn.dataset.img;
+
     const prev = document.getElementById('preview-imagem-edit');
     prev.style.display = 'none'; prev.src = '';
     document.getElementById('dropzone-texto-edit').innerText = '📁 Nova foto (opcional)';
     document.getElementById('dropzone-edit').style.borderColor = '#3498db';
     document.getElementById('imagem_produto_edit').value = '';
+    document.getElementById('modalEdicaoErro').style.display = 'none';
+
     abrirModal('modalEdicao');
     document.getElementById('modalNomeInput').focus();
 }
@@ -653,7 +707,6 @@ function abrirModalEditarCategoria(btn) {
     document.getElementById('nomeEditarCategoria').value = catNome;
     document.getElementById('formEditarCategoria').action = '/editar_categoria/' + catId;
 
-    // Descobre quais produtos já pertencem a esta categoria (lendo o DOM)
     const selecionados = [];
     document.querySelectorAll('.produto-card').forEach(card => {
         const cats = (card.dataset.categorias || '').split(',').filter(Boolean);
@@ -678,13 +731,11 @@ document.addEventListener('keydown', e => {
             .forEach(id => fecharModal(id));
 });
 
-// Constrói o grid de checkboxes de produtos
 function preencherCheckboxProdutos(containerId, selecionados) {
     const container = document.getElementById(containerId);
     container.innerHTML = '';
 
     const cartoes = Array.from(document.getElementsByClassName('produto-card'));
-    // ordena pelo nome já exibido (DOM já está ordenado, mas garante)
     cartoes.sort((a, b) =>
         a.querySelector('.nome-produto').innerText.localeCompare(
         b.querySelector('.nome-produto').innerText, 'pt-BR'));
