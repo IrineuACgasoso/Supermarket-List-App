@@ -1,0 +1,5 @@
+venv/
+.env
+*.db
+criar_admin.py
+resetar_senha.py

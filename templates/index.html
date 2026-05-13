@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Supermercado</title>
+    <link rel="manifest" href="/static/manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1, h2 { text-align: center; color: #fff; }
+
+        /* ── BARRA DE PESQUISA ── */
+        .search-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            width: 100%;
+            max-width: 700px;
+            margin-bottom: 16px;
+        }
+        #barraPesquisa {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background-color: #1e1e1e;
+            color: #fff;
+            font-size: 16px;
+            font-family: inherit;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        #barraPesquisa::placeholder { color: #888; }
+
+        /* ── BOTÃO NOVA CATEGORIA ── */
+        .btn-nova-cat {
+            white-space: nowrap;
+            background: transparent;
+            border: 1px dashed #3498db;
+            color: #3498db;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-nova-cat:hover { background: #1a2a3a; color: #5ab4f5; border-color: #5ab4f5; }
+
+        /* ── TABS DE CATEGORIA ── */
+        .categorias-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 16px;
+        }
+        .tab-cat-group { display: flex; align-items: center; gap: 2px; }
+
+        .tab-cat {
+            background: #2c2c2c;
+            color: #ccc;
+            border: 1px solid #444;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            /* reset global button styles */
+            width: auto;
+            margin-top: 0;
+        }
+        .tab-cat:hover { background: #3a3a3a; color: #fff; }
+        .tab-cat.active { background: #27ae60; color: #fff; border-color: #27ae60; }
+
+        /* ── MENU DE CATEGORIA (⋯) ── */
+        .cat-menu-wrapper { position: relative; }
+        .tab-cat-menu-btn {
+            background: none; border: none; color: #777;
+            cursor: pointer; padding: 3px 7px; font-size: 15px;
+            width: auto; margin-top: 0; line-height: 1; border-radius: 6px;
+            letter-spacing: 1px; transition: all 0.15s;
+        }
+        .tab-cat-menu-btn:hover { background: #333; color: #fff; }
+        .cat-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            background: #252525;
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 5px;
+            min-width: 140px;
+            z-index: 200;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.6);
+            flex-direction: column;
+            gap: 2px;
+        }
+        .cat-dropdown.aberto { display: flex; }
+        .cat-dropdown-item {
+            display: block; background: none; border: none;
+            color: #e0e0e0; text-align: left; padding: 9px 13px;
+            border-radius: 7px; cursor: pointer; font-family: inherit;
+            font-size: 13px; font-weight: 600; width: 100%; margin-top: 0;
+            text-decoration: none; transition: background 0.15s;
+        }
+        .cat-dropdown-item:hover { background: #333; color: #fff; }
+        .cat-dropdown-apagar { color: #ff7070; }
+        .cat-dropdown-apagar:hover { background: #3a1a1a; color: #ff9090; }
+
+        /* ── CATÁLOGO ── */
+        .catalogo {
+            display: grid;
+            grid-template-rows: repeat(2, auto);
+            grid-auto-flow: column;
+            gap: 20px;
+            justify-content: flex-start;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 1000px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+        }
+        .catalogo::-webkit-scrollbar { height: 10px; }
+        .catalogo::-webkit-scrollbar-track { background: #1e1e1e; border-radius: 8px; }
+        .catalogo::-webkit-scrollbar-thumb { background: #444; border-radius: 8px; }
+        .catalogo::-webkit-scrollbar-thumb:hover { background: #666; }
+
+        /* ── CARD ── */
+        .produto-card {
+            background: #1e1e1e;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            transition: transform 0.2s;
+            width: 160px;
+            box-sizing: border-box;
+            border: 1px solid #333;
+            position: relative;
+        }
+        .produto-card:hover { transform: translateY(-5px); }
+        .produto-card img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; }
+
+        .btn-excluir-card {
+            position: absolute; top: 5px; right: 10px;
+            text-decoration: none; font-size: 18px; color: #ff6b6b; font-weight: bold;
+            line-height: 1; cursor: pointer;
+        }
+        .btn-editar-card {
+            position: absolute; top: 5px; left: 10px;
+            font-size: 16px; cursor: pointer;
+            background: none; border: none; padding: 0; line-height: 1;
+            color: #7db3ff; transition: color 0.2s; width: auto; margin-top: 0;
+        }
+        .btn-editar-card:hover { background: none; color: #a8d0ff; }
+
+        /* ── INPUTS / BOTÕES GLOBAIS ── */
+        input[type="number"], input[type="text"] {
+            background-color: #2c2c2c; color: #fff; border: 1px solid #555;
+        }
+        input[type="number"] { width: 50px; padding: 8px; border-radius: 6px; text-align: center; }
+
+        button {
+            background-color: #27ae60; color: white; border: none;
+            padding: 10px 15px; border-radius: 6px; cursor: pointer;
+            font-weight: 600; margin-top: 10px; width: 100%;
+        }
+        button:hover { background-color: #2ecc71; }
+
+        /* ── LISTA ── */
+        .caixa-lista {
+            background: #1e1e1e; padding: 20px 40px; border-radius: 12px;
+            width: 100%; max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+            box-sizing: border-box; border: 1px solid #333;
+        }
+        .item-lista {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid #333; font-size: 18px;
+        }
+        .item-lista:last-child { border-bottom: none; }
+
+        /* ── BOTÃO REMOVER (fix: tamanho correto) ── */
+        .btn-remover {
+            background-color: #e74c3c;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+            /* sobrescreve o width:100% e margin-top global de button */
+            width: auto;
+            margin-top: 0;
+            flex-shrink: 0;
+        }
+        .btn-remover:hover { background-color: #c0392b; }
+
+        /* ── DROPZONE ── */
+        .dropzone {
+            border: 2px dashed #3498db; border-radius: 8px; padding: 20px;
+            text-align: center; color: #aaa; background-color: #1a1a1a;
+            cursor: pointer; transition: all 0.3s ease; margin-bottom: 10px;
+        }
+        .dropzone.arrastando { background-color: #2c3e50; border-color: #2980b9; transform: scale(1.02); }
+        .preview-imagem {
+            display: none; width: 100px; height: 100px; object-fit: cover;
+            border-radius: 8px; margin: 0 auto 10px auto; border: 2px solid #555;
+        }
+
+        /* ── MODAL GENÉRICO ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.78); z-index: 1000;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.aberto { display: flex; }
+        .modal-box {
+            background: #1e1e1e; border: 1px solid #444; border-radius: 16px;
+            padding: 30px 36px; width: 100%; max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            display: flex; flex-direction: column; gap: 12px; position: relative;
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-box.largo { max-width: 620px; }
+        .modal-box h3 { margin: 0 0 4px 0; color: #fff; font-size: 20px; }
+        .modal-box input[type="text"] {
+            padding: 10px; border-radius: 6px; font-family: inherit;
+            font-size: 15px; width: 100%; box-sizing: border-box;
+        }
+        .modal-fechar {
+            position: absolute; top: 12px; right: 16px;
+            background: none; border: none; color: #aaa; font-size: 22px;
+            cursor: pointer; padding: 0; width: auto; margin: 0;
+        }
+        .modal-fechar:hover { background: none; color: #fff; }
+        .modal-img-atual {
+            width: 80px; height: 80px; object-fit: cover; border-radius: 8px;
+            border: 2px solid #555; display: block; margin: 0 auto 6px auto;
+        }
+        .modal-label { font-size: 13px; color: #aaa; margin-bottom: 2px; }
+
+        /* ── GRID DE CHECKBOXES (seleção de produtos para categoria) ── */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #151515;
+        }
+        .checkbox-grid::-webkit-scrollbar { width: 6px; }
+        .checkbox-grid::-webkit-scrollbar-track { background: #1a1a1a; }
+        .checkbox-grid::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+        .checkbox-produto {
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            cursor: pointer; padding: 8px; border-radius: 8px;
+            border: 2px solid transparent; transition: all 0.15s;
+            background: #1e1e1e; font-size: 11px; text-align: center; user-select: none;
+        }
+        .checkbox-produto:has(input:checked) { border-color: #27ae60; background: #182818; }
+        .checkbox-produto input { display: none; }
+        .checkbox-produto img { width: 55px; height: 55px; object-fit: cover; border-radius: 6px; }
+        .checkbox-produto span { word-break: break-word; line-height: 1.2; }
+
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+            .search-row { flex-direction: column; align-items: stretch; }
+            .btn-nova-cat { text-align: center; }
+            .produto-card { flex: 0 0 auto; width: 150px; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>🛒 Nossa Lista de Mercado</h1>
+
+<!-- ══════════════════════════════
+     LISTA DE COMPRAS (topo)
+══════════════════════════════ -->
+<div class="caixa-lista" id="caixaLista" style="margin-bottom: 30px;">
+    <h2 style="margin-top:0">📝 Para Comprar:</h2>
+    <div id="listaCompras">
+        {% for item in lista %}
+        <div class="item-lista">
+            <span><strong>{{ item.quantidade }}x</strong> {{ item.nome }}</span>
+            <button class="btn-remover" onclick="removerItem('{{ item.nome }}')">Remover</button>
+        </div>
+        {% else %}
+        <p style="text-align:center;color:#888;font-style:italic;">A lista está vazia! 🎉</p>
+        {% endfor %}
+    </div>
+</div>
+
+<hr style="width:100%;border:1px solid #333;margin:10px 0 30px 0;">
+
+<!-- ══════════════════════════════
+     CATÁLOGO
+══════════════════════════════ -->
+<h2>O que está faltando?</h2>
+
+<!-- Barra de pesquisa + botão nova categoria -->
+<div class="search-row">
+    <input type="text" id="barraPesquisa" placeholder="🔍 Pesquisar no catálogo..."
+           oninput="filtrarProdutos()">
+    <button class="btn-nova-cat" onclick="abrirModalNovaCategoria()">🏷️ Nova categoria</button>
+</div>
+
+<!-- Tabs de categoria -->
+{% if categorias %}
+<div class="categorias-wrapper" id="categoriasWrapper">
+    <button class="tab-cat active" id="tab-todos" onclick="filtrarCategoria(0, this)">Todos</button>
+    {% for cat in categorias %}
+    <div class="tab-cat-group">
+        <button class="tab-cat"
+                data-catid="{{ cat.id }}"
+                onclick="filtrarCategoria(parseInt(this.dataset.catid), this)">{{ cat.nome }}</button>
+        <div class="cat-menu-wrapper">
+            <button class="tab-cat-menu-btn" onclick="toggleMenuCategoria(this)" title="Gerenciar categoria">⋯</button>
+            <div class="cat-dropdown">
+                <button class="cat-dropdown-item"
+                        data-id="{{ cat.id }}"
+                        data-nome="{{ cat.nome }}"
+                        onclick="fecharMenusCategoria(); abrirModalEditarCategoria(this)">
+                    ✏️ Editar
+                </button>
+                <a class="cat-dropdown-item cat-dropdown-apagar"
+                   href="{{ url_for('categorias.remover_categoria', cat_id=cat.id) }}"
+                   data-nome="{{ cat.nome }}"
+                   onclick="fecharMenusCategoria(); return confirmarRemocao('categoria', this.dataset.nome) && (salvarScroll(), true)">
+                   🗑️ Apagar
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Grid do catálogo -->
+<div class="catalogo" id="catalogoProdutos">
+    {% for produto in produtos %}
+    <div class="produto-card"
+         id="card-{{ produto.id }}"
+         data-categorias="{{ produto_cats.get(produto.id, []) | join(',') }}">
+
+        <button class="btn-editar-card" title="Editar produto"
+                data-id="{{ produto.id }}"
+                data-nome="{{ produto.nome }}"
+                data-img="{{ url_for('static', filename=produto.imagem) }}"
+                onclick="abrirModalEdicao(this)">✏️</button>
+
+        <a href="{{ url_for('produtos.remover_catalogo', nome_do_produto=produto.nome) }}"
+           class="btn-excluir-card" title="Excluir do catálogo"
+           data-nome="{{ produto.nome }}"
+           onclick="return confirmarRemocao('produto', this.dataset.nome) && (salvarScroll(), true)">❌</a>
+
+        <img src="{{ url_for('static', filename=produto.imagem) }}" alt="{{ produto.nome }}">
+        <br>
+        <strong class="nome-produto">{{ produto.nome }}</strong>
+
+        <div style="margin-top:15px;">
+            <input type="number" class="qtd-input" value="1" min="1">
+            <br>
+            <button onclick="adicionarItem('{{ produto.nome }}', this)">+ Adicionar</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Cadastrar novo produto -->
+<div class="caixa-lista" style="margin-bottom:30px;">
+    <h2 style="margin-top:0">➕ Cadastrar Novo Produto</h2>
+    <form action="{{ url_for('produtos.novo_produto') }}" method="POST" enctype="multipart/form-data"
+          style="display:flex;flex-direction:column;gap:10px;" onsubmit="salvarScroll()">
+        <input type="text" name="nome_produto" placeholder="Ex: Macarrão" required
+               style="padding:10px;border-radius:6px;font-family:inherit;">
+        <div id="dropzone-novo" class="dropzone">
+            <p id="dropzone-texto-novo" style="margin:0;font-size:14px;">
+                📁 Arraste uma foto, cole (Ctrl+V) ou clique aqui
+            </p>
+            <input type="file" name="imagem_produto" id="imagem_produto_novo"
+                   accept="image/*" style="display:none;">
+        </div>
+        <img id="preview-imagem-novo" class="preview-imagem" src="" alt="">
+        <button type="submit" style="background-color:#3498db;margin-top:5px;">
+            Cadastrar no Catálogo
+        </button>
+    </form>
+</div>
+
+
+<!-- ══════════════════════════════
+     MODAL — Editar produto
+══════════════════════════════ -->
+<div class="modal-overlay" id="modalEdicao">
+    <div class="modal-box">
+        <button class="modal-fechar" onclick="fecharModal('modalEdicao')">✕</button>
+        <h3>✏️ Editar Produto</h3>
+        <form id="formEdicao" action="" method="POST" enctype="multipart/form-data"
+              style="display:flex;flex-direction:column;gap:10px;" onsubmit="salvarScroll()">
+            <p class="modal-label">Imagem atual:</p>
+            <img id="modalImgAtual" class="modal-img-atual" src="" alt="">
+            <p class="modal-label">Nome:</p>
+            <input type="text" name="novo_nome" id="modalNomeInput" required>
+            <div id="dropzone-edit" class="dropzone">
+                <p id="dropzone-texto-edit" style="margin:0;font-size:14px;">
+                    📁 Nova foto (opcional)
+                </p>
+                <input type="file" name="imagem_produto" id="imagem_produto_edit"
+                       accept="image/*" style="display:none;">
+            </div>
+            <img id="preview-imagem-edit" class="preview-imagem" src="" alt="">
+            <button type="submit" style="background-color:#f39c12;">💾 Salvar alterações</button>
+        </form>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     MODAL — Nova categoria
+══════════════════════════════ -->
+<div class="modal-overlay" id="modalNovaCategoria">
+    <div class="modal-box largo">
+        <button class="modal-fechar" onclick="fecharModal('modalNovaCategoria')">✕</button>
+        <h3>🏷️ Nova Categoria</h3>
+        <form action="{{ url_for('categorias.nova_categoria') }}" method="POST"
+              style="display:flex;flex-direction:column;gap:12px;" onsubmit="salvarScroll()">
+            <p class="modal-label">Nome da categoria:</p>
+            <input type="text" name="nome_categoria" id="nomeNovaCategoria"
+                   required placeholder="Ex: Laticínios">
+            <p class="modal-label" style="margin-bottom:4px;">
+                Selecione os produtos desta categoria:
+            </p>
+            <div class="checkbox-grid" id="checkboxProdutosNova"></div>
+            <button type="submit" style="background-color:#27ae60;">✅ Criar Categoria</button>
+        </form>
+    </div>
+</div>
+
+
+<!-- ══════════════════════════════
+     MODAL — Editar categoria
+══════════════════════════════ -->
+<div class="modal-overlay" id="modalEditarCategoria">
+    <div class="modal-box largo">
+        <button class="modal-fechar" onclick="fecharModal('modalEditarCategoria')">✕</button>
+        <h3>✏️ Editar Categoria</h3>
+        <form id="formEditarCategoria" action="" method="POST"
+              style="display:flex;flex-direction:column;gap:12px;" onsubmit="salvarScroll()">
+            <p class="modal-label">Nome da categoria:</p>
+            <input type="text" name="novo_nome_categoria" id="nomeEditarCategoria" required>
+            <p class="modal-label" style="margin-bottom:4px;">Produtos desta categoria:</p>
+            <div class="checkbox-grid" id="checkboxProdutosEditar"></div>
+            <button type="submit" style="background-color:#f39c12;">💾 Salvar alterações</button>
+        </form>
+    </div>
+</div>
+
+
+<script>
+// ─────────────────────────────────────────
+// SCROLL
+// ─────────────────────────────────────────
+function salvarScroll() {
+    sessionStorage.setItem('scrollY', window.scrollY);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const y = sessionStorage.getItem('scrollY');
+    if (y !== null) { window.scrollTo(0, parseInt(y)); sessionStorage.removeItem('scrollY'); }
+
+    // Ordena catálogo alfabeticamente
+    const catalogo = document.getElementById('catalogoProdutos');
+    const cartoes = Array.from(catalogo.getElementsByClassName('produto-card'));
+    cartoes.sort((a, b) =>
+        a.querySelector('.nome-produto').innerText.localeCompare(
+        b.querySelector('.nome-produto').innerText, 'pt-BR'));
+    cartoes.forEach(c => catalogo.appendChild(c));
+
+    // Dropzones
+    configurarDropzone('dropzone-novo', 'imagem_produto_novo', 'dropzone-texto-novo', 'preview-imagem-novo');
+    configurarDropzone('dropzone-edit', 'imagem_produto_edit', 'dropzone-texto-edit', 'preview-imagem-edit');
+
+    // Fecha modais ao clicar fora
+    ['modalEdicao','modalNovaCategoria','modalEditarCategoria'].forEach(id => {
+        document.getElementById(id).addEventListener('click', function(e) {
+            if (e.target === this) fecharModal(id);
+        });
+    });
+});
+
+
+// ─────────────────────────────────────────
+// AJAX — Adicionar / Remover da lista
+// ─────────────────────────────────────────
+function adicionarItem(nomeProduto, botao) {
+    const card      = botao.closest('.produto-card');
+    const qtdInput  = card.querySelector('.qtd-input');
+    const quantidade = parseInt(qtdInput.value) || 1;
+    const form = new FormData();
+    form.append('produto', nomeProduto);
+    form.append('quantidade', quantidade);
+    fetch('/api/adicionar', { method: 'POST', body: form })
+        .then(r => r.json())
+        .then(lista => { renderizarLista(lista); qtdInput.value = 1; })
+        .catch(err => console.error('Erro ao adicionar:', err));
+}
+
+function removerItem(nome) {
+    fetch('/api/remover/' + encodeURIComponent(nome))
+        .then(r => r.json())
+        .then(lista => renderizarLista(lista))
+        .catch(err => console.error('Erro ao remover:', err));
+}
+
+function renderizarLista(lista) {
+    const container = document.getElementById('listaCompras');
+    container.innerHTML = '';
+    if (lista.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#888;font-style:italic;">A lista está vazia! 🎉</p>';
+        return;
+    }
+    lista.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'item-lista';
+        div.innerHTML = `
+            <span><strong>${item.quantidade}x</strong> ${item.nome}</span>
+            <button class="btn-remover" onclick="removerItem('${item.nome.replace(/'/g,"\\'")}')">Remover</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+
+// ─────────────────────────────────────────
+// MENU DE CATEGORIA (⋯)
+// ─────────────────────────────────────────
+function toggleMenuCategoria(btn) {
+    const dropdown  = btn.nextElementSibling;
+    const estaAberto = dropdown.classList.contains('aberto');
+    fecharMenusCategoria();
+    if (!estaAberto) dropdown.classList.add('aberto');
+}
+
+function fecharMenusCategoria() {
+    document.querySelectorAll('.cat-dropdown.aberto')
+            .forEach(d => d.classList.remove('aberto'));
+}
+
+// Fecha dropdown ao clicar fora
+document.addEventListener('click', e => {
+    if (!e.target.closest('.cat-menu-wrapper')) fecharMenusCategoria();
+});
+
+// ─────────────────────────────────────────
+// CONFIRMAÇÃO DE REMOÇÃO
+// ─────────────────────────────────────────
+function confirmarRemocao(tipo, nome) {
+    const msg = tipo === 'produto'
+        ? `Remover o produto "${nome}" do catálogo?`
+        : `Remover a categoria "${nome}"?\nOs produtos não serão apagados.`;
+    return confirm(msg);
+}
+
+
+// ─────────────────────────────────────────
+// FILTRO: texto + categoria combinados
+// ─────────────────────────────────────────
+let categoriaAtiva = 0;
+
+// Remove acentos para comparação (feijão == feijao, etc.)
+function normalizar(str) {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function filtrarProdutos() {
+    const texto   = normalizar(document.getElementById('barraPesquisa').value);
+    const cartoes = document.getElementsByClassName('produto-card');
+    for (const c of cartoes) {
+        const nome  = normalizar(c.querySelector('.nome-produto').innerText);
+        const cats  = (c.dataset.categorias || '').split(',').filter(Boolean);
+        const passaTxt = nome.includes(texto);
+        const passaCat = categoriaAtiva === 0 || cats.includes(String(categoriaAtiva));
+        c.style.display = (passaTxt && passaCat) ? '' : 'none';
+    }
+}
+
+function filtrarCategoria(catId, botao) {
+    categoriaAtiva = catId;
+    document.querySelectorAll('.tab-cat').forEach(t => t.classList.remove('active'));
+    if (botao) botao.classList.add('active');
+    filtrarProdutos();
+}
+
+
+// ─────────────────────────────────────────
+// MODAL — Editar produto
+// ─────────────────────────────────────────
+function abrirModalEdicao(btn) {
+    document.getElementById('formEdicao').action = '/editar_produto/' + btn.dataset.id;
+    document.getElementById('modalNomeInput').value = btn.dataset.nome;
+    document.getElementById('modalImgAtual').src    = btn.dataset.img;
+    const prev = document.getElementById('preview-imagem-edit');
+    prev.style.display = 'none'; prev.src = '';
+    document.getElementById('dropzone-texto-edit').innerText = '📁 Nova foto (opcional)';
+    document.getElementById('dropzone-edit').style.borderColor = '#3498db';
+    document.getElementById('imagem_produto_edit').value = '';
+    abrirModal('modalEdicao');
+    document.getElementById('modalNomeInput').focus();
+}
+
+
+// ─────────────────────────────────────────
+// MODAL — Nova categoria
+// ─────────────────────────────────────────
+function abrirModalNovaCategoria() {
+    document.getElementById('nomeNovaCategoria').value = '';
+    preencherCheckboxProdutos('checkboxProdutosNova', []);
+    abrirModal('modalNovaCategoria');
+    document.getElementById('nomeNovaCategoria').focus();
+}
+
+
+// ─────────────────────────────────────────
+// MODAL — Editar categoria
+// ─────────────────────────────────────────
+function abrirModalEditarCategoria(btn) {
+    const catId   = btn.dataset.id;
+    const catNome = btn.dataset.nome;
+    document.getElementById('nomeEditarCategoria').value = catNome;
+    document.getElementById('formEditarCategoria').action = '/editar_categoria/' + catId;
+
+    // Descobre quais produtos já pertencem a esta categoria (lendo o DOM)
+    const selecionados = [];
+    document.querySelectorAll('.produto-card').forEach(card => {
+        const cats = (card.dataset.categorias || '').split(',').filter(Boolean);
+        if (cats.includes(catId)) selecionados.push(card.id.replace('card-', ''));
+    });
+
+    preencherCheckboxProdutos('checkboxProdutosEditar', selecionados);
+    abrirModal('modalEditarCategoria');
+    document.getElementById('nomeEditarCategoria').focus();
+}
+
+
+// ─────────────────────────────────────────
+// Helpers de modal
+// ─────────────────────────────────────────
+function abrirModal(id) { document.getElementById(id).classList.add('aberto'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('aberto'); }
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape')
+        ['modalEdicao','modalNovaCategoria','modalEditarCategoria']
+            .forEach(id => fecharModal(id));
+});
+
+// Constrói o grid de checkboxes de produtos
+function preencherCheckboxProdutos(containerId, selecionados) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+
+    const cartoes = Array.from(document.getElementsByClassName('produto-card'));
+    // ordena pelo nome já exibido (DOM já está ordenado, mas garante)
+    cartoes.sort((a, b) =>
+        a.querySelector('.nome-produto').innerText.localeCompare(
+        b.querySelector('.nome-produto').innerText, 'pt-BR'));
+
+    cartoes.forEach(card => {
+        const pid     = card.id.replace('card-', '');
+        const nome    = card.querySelector('.nome-produto').innerText;
+        const imgSrc  = card.querySelector('img').src;
+        const checked = selecionados.includes(pid) ? 'checked' : '';
+        const label   = document.createElement('label');
+        label.className = 'checkbox-produto';
+        label.innerHTML = `
+            <input type="checkbox" name="produtos_categoria" value="${pid}" ${checked}>
+            <img src="${imgSrc}" alt="${nome}">
+            <span>${nome}</span>
+        `;
+        container.appendChild(label);
+    });
+}
+
+
+// ─────────────────────────────────────────
+// DROPZONE
+// ─────────────────────────────────────────
+function configurarDropzone(dropzoneId, inputId, textoId, previewId) {
+    const dz      = document.getElementById(dropzoneId);
+    const input   = document.getElementById(inputId);
+    const texto   = document.getElementById(textoId);
+    const preview = document.getElementById(previewId);
+
+    dz.addEventListener('click', () => input.click());
+    dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('arrastando'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('arrastando'));
+    dz.addEventListener('drop', e => {
+        e.preventDefault(); dz.classList.remove('arrastando');
+        if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; mostrarPreview(input, preview, texto, dz); }
+    });
+    input.addEventListener('change', () => mostrarPreview(input, preview, texto, dz));
+}
+
+document.addEventListener('paste', e => {
+    if (!e.clipboardData.files.length) return;
+    const modal1 = document.getElementById('modalEdicao').classList.contains('aberto');
+    const prefix = modal1 ? 'edit' : 'novo';
+    const input   = document.getElementById(`imagem_produto_${prefix}`);
+    const preview = document.getElementById(`preview-imagem-${prefix}`);
+    const texto   = document.getElementById(`dropzone-texto-${prefix}`);
+    const dz      = document.getElementById(`dropzone-${prefix}`);
+    input.files = e.clipboardData.files;
+    mostrarPreview(input, preview, texto, dz);
+});
+
+function mostrarPreview(input, preview, texto, dz) {
+    if (input.files && input.files[0]) {
+        const leitor = new FileReader();
+        leitor.onload = e => {
+            preview.src = e.target.result; preview.style.display = 'block';
+            texto.innerText = '✅ Imagem pronta!'; dz.style.borderColor = '#2ecc71';
+        };
+        leitor.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(() => console.log('Service Worker registrado com sucesso!'))
+      .catch((err) => console.log('Erro no Service Worker:', err));
+  }
+</script>
+
+</body>
+</html>
