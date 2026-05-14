@@ -1,6 +1,8 @@
 venv/
 data/
 .env
+.pyc
+pycache/
 *.db
 criar_admin.py
 resetar_senha.py
