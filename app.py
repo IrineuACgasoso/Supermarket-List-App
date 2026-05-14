@@ -16,6 +16,10 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    import os
+
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
     # Extensões
     limiter.init_app(app)
     login_manager.init_app(app)

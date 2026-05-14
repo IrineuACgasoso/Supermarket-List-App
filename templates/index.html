@@ -735,7 +735,7 @@ function abrirModalEditarCategoria(btn) {
 function abrirModal(id) { document.getElementById(id).classList.add('aberto'); }
 function fecharModal(id) { document.getElementById(id).classList.remove('aberto'); }
 
-document.getElementById('edit-nome-produto').addEventListener('keypress', function (e) {
+document.getElementById('modalNomeInput').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') {
         e.preventDefault(); // Impede o comportamento padrão de atualizar a página
         salvarEdicaoProduto(); // Chama a sua função que já está funcionando
