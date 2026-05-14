@@ -5,3 +5,4 @@ data/
 pycache/
 *.db
 scripts/
+\__pycache__\

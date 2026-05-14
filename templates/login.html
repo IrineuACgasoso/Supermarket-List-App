@@ -1,37 +1,64 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login • Lista de Supermercado</title>
 
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+</head>
 <body>
 
-    <h1>Login</h1>
+    <div class="login-card">
 
-    <form method="POST">
+        <div class="logo">🛒</div>
 
-        <input
-            type="text"
-            name="username"
-            placeholder="Usuário"
-            required
-        >
+        <h1>Bem-vindo</h1>
 
-        <input
-            type="password"
-            name="senha"
-            placeholder="Senha"
-            required
-        >
+        <p class="subtitulo">
+            Entre para acessar sua lista de supermercado
+        </p>
 
-        <button type="submit">
-            Entrar
-        </button>
+        {% if erro %}
+        <div class="erro">
+            {{ erro }}
+        </div>
+        {% endif %}
 
-    </form>
+        <form method="POST">
+
+            <div class="campo">
+                <label>Usuário</label>
+
+                <input
+                    type="text"
+                    name="username"
+                    placeholder="Digite seu usuário"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="campo">
+                <label>Senha</label>
+
+                <input
+                    type="password"
+                    name="senha"
+                    placeholder="Digite sua senha"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button class="btn-login" type="submit">
+                Entrar
+            </button>
+
+        </form>
+
+    </div>
 
 </body>
-
 </html>
