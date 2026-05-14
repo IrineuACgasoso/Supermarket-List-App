@@ -89,7 +89,7 @@ def novo_produto():
     return jsonify({
         "id": novo_id,
         "nome": nome,
-        "imagem": url_for('produto.upload_file', filename=nome_arquivo)
+        "imagem": url_for('produtos.upload_file', filename=nome_arquivo)
     })
 
 
@@ -133,7 +133,7 @@ def editar_produto(produto_id):
     return jsonify({
         "id": produto_id,
         "nome": novo_nome,
-        "imagem": url_for('produto.upload_file', filename=nome_arquivo)
+        "imagem": url_for('produtos.upload_file', filename=nome_arquivo)
     })
 
 

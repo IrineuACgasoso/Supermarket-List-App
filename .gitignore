@@ -4,5 +4,4 @@ data/
 .pyc
 pycache/
 *.db
-criar_admin.py
-resetar_senha.py
+scripts/
