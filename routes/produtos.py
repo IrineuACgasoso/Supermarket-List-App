@@ -8,6 +8,14 @@ from utils.uploads import salvar_imagem
 
 produtos_bp = Blueprint("produtos", __name__)
 
+# ── Servir imagens de uploads ─────────────────────────────────────────────────
+# As imagens ficam em data/uploads/, fora do static/.
+# Esta rota as entrega de forma segura, exigindo login.
+ 
+@produtos_bp.route("/uploads/<path:filename>")
+@login_required
+def upload_file(filename):
+    return send_from_directory(Config.UPLOAD_FOLDER, filename)
 
 # ── API AJAX ──────────────────────────────────────────────────────────────────
 
@@ -81,7 +89,7 @@ def novo_produto():
     return jsonify({
         "id": novo_id,
         "nome": nome,
-        "imagem": url_for('static', filename=nome_arquivo)
+        "imagem": url_for('produto.upload_file', filename=nome_arquivo)
     })
 
 
@@ -125,7 +133,7 @@ def editar_produto(produto_id):
     return jsonify({
         "id": produto_id,
         "nome": novo_nome,
-        "imagem": url_for('static', filename=nome_arquivo)
+        "imagem": url_for('produto.upload_file', filename=nome_arquivo)
     })
 
 

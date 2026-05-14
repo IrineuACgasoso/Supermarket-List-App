@@ -2,7 +2,7 @@
 // Dropzone — drag & drop + colar imagem
 // ─────────────────────────────────────────
  
-function configurarDropzone(dropzoneId, inputId, textoId, previewId) {
+export function configurarDropzone(dropzoneId, inputId, textoId, previewId) {
     const dz      = document.getElementById(dropzoneId);
     const input   = document.getElementById(inputId);
     const texto   = document.getElementById(textoId);
