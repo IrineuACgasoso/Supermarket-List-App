@@ -113,17 +113,22 @@
 <!-- ══ CADASTRAR NOVO PRODUTO ══ -->
 <div class="caixa-lista" style="margin-bottom:30px;">
     <h2 style="margin-top:0">➕ Cadastrar Novo Produto</h2>
+    
     <input type="text" id="inputNovoProduto" placeholder="Ex: Macarrão"
+           onkeypress="window.checarEnterNovoProduto(event)"
            style="padding:10px;border-radius:6px;font-family:inherit;width:100%;box-sizing:border-box;">
+           
     <div id="dropzone-novo" class="dropzone">
         <p id="dropzone-texto-novo" style="margin:0;font-size:14px;">
             📁 Arraste uma foto, cole (Ctrl+V) ou clique aqui
         </p>
         <input type="file" id="imagem_produto_novo" accept="image/*" style="display:none;">
     </div>
+    
     <img id="preview-imagem-novo" class="preview-imagem" src="" alt="">
     <p class="modal-erro" id="erroCadastro" style="display:none;"></p>
-    <button id="btnCadastrar" style="background-color:#3498db;margin-top:5px;">
+    
+    <button id="btnCadastrar" onclick="window.cadastrarProdutoAJAX()" style="background-color:#3498db;margin-top:5px;">
         Cadastrar no Catálogo
     </button>
 </div>

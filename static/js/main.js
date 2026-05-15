@@ -8,7 +8,8 @@ import { configurarDropzone, iniciarColarImagem }   from './dropzone.js';
 import { iniciarFecharModalEsc,
          iniciarFecharModalClicandoFora,
          fecharModal }                               from './modais.js';
-import { abrirModalEdicao, salvarEdicaoProduto,
+import { cadastrarProdutoAJAX, checarEnterNovoProduto,
+         abrirModalEdicao, salvarEdicaoProduto,
          abrirModalNovaCategoria,
          abrirModalEditarCategoria,
          toggleMenuCategoria, fecharMenusCategoria,
@@ -20,6 +21,8 @@ window.adicionarItem           = adicionarItem;
 window.removerItem             = removerItem;
 window.filtrarProdutos         = filtrarProdutos;
 window.filtrarCategoria        = filtrarCategoria;
+window.cadastrarProdutoAJAX    = cadastrarProdutoAJAX;
+window.checarEnterNovoProduto  = checarEnterNovoProduto;
 window.abrirModalEdicao        = abrirModalEdicao;
 window.salvarEdicaoProduto     = salvarEdicaoProduto;
 window.abrirModalNovaCategoria = abrirModalNovaCategoria;
@@ -49,7 +52,24 @@ window.addEventListener('DOMContentLoaded', () => {
     iniciarFecharModalEsc();
     iniciarFecharModalClicandoFora();
 
-    // Botão salvar edição
+    // ===== CADASTRO DE NOVO PRODUTO ==========================
+    const btnCadastrar = document.getElementById('btnCadastrar');
+    const inputNovoProduto = document.getElementById('inputNovoProduto');
+
+    if (btnCadastrar) {
+        btnCadastrar.addEventListener('click', cadastrarProdutoAJAX);
+    }
+
+    if (inputNovoProduto) {
+        inputNovoProduto.addEventListener('keypress', e => {
+            if (e.key === 'Enter') { 
+                e.preventDefault(); 
+                cadastrarProdutoAJAX(); 
+            }
+        });
+    }
+
+    // ===== SALVAR EDIÇÃO ==========================
     document.getElementById('btnSalvarEdicao')
             .addEventListener('click', salvarEdicaoProduto);
 

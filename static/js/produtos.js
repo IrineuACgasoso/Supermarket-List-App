@@ -1,3 +1,47 @@
+// ─────────────────────────────
+// Produtos — adicionar via AJAX
+// ─────────────────────────────
+
+export function cadastrarProdutoAJAX() {
+    const nomeInput = document.getElementById('inputNovoProduto');
+    const imagemInput = document.getElementById('imagem_produto_novo');
+    const btn = document.getElementById('btnCadastrar');
+
+    if (!nomeInput.value.trim()) {
+        alert("Por favor, digita o nome do produto.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('nome_produto', nomeInput.value.trim());
+    if (imagemInput.files[0]) {
+        formData.append('imagem_produto', imagemInput.files[0]);
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Aguarde...';
+
+    fetch('/novo_produto', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(dados => {
+            if (dados.erro) { alert(dados.erro); return; }
+            location.reload(); 
+        })
+        .catch(() => alert("Erro ao cadastrar."))
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Cadastrar no Catálogo';
+        });
+}
+
+// Função que o HTML vai chamar quando uma tecla for pressionada
+export function checarEnterNovoProduto(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault(); // Impede o recarregamento
+        cadastrarProdutoAJAX(); // Chama a tua função principal
+    }
+}
+
 // ─────────────────────────────────────────
 // Produtos — editar via AJAX + menu categorias
 // ─────────────────────────────────────────
