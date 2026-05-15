@@ -13,6 +13,7 @@ produtos_bp = Blueprint("produtos", __name__)
 # Esta rota as entrega de forma segura, exigindo login.
  
 @produtos_bp.route("/uploads/<path:filename>")
+@limiter.exempt
 @login_required
 def upload_file(filename):
     return send_from_directory(Config.UPLOAD_FOLDER, filename)
