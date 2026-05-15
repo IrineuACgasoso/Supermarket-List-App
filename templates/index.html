@@ -88,7 +88,7 @@
                 title="Editar produto"
                 data-id="{{ produto.id }}"
                 data-nome="{{ produto.nome }}"
-                data-img="{{ url_imagem(produtos.imagem) }}"
+                data-img="{{ url_imagem(produto.imagem) }}"
                 onclick="window.abrirModalEdicao(this)">✏️</button>
 
         <a href="{{ url_for('produtos.remover_catalogo', nome_do_produto=produto.nome) }}"
@@ -97,7 +97,7 @@
            data-nome="{{ produto.nome }}"
            onclick="return window.confirmarRemocao('produto', this.dataset.nome) && (window.salvarScroll(), true)">❌</a>
 
-        <img src="{{ url_imagem(produtos.imagem) }}" alt="{{ produto.nome }}">
+        <img src="{{ url_imagem(produto.imagem) }}" alt="{{ produto.nome }}">
         <br>
         <strong class="nome-produto">{{ produto.nome }}</strong>
 
