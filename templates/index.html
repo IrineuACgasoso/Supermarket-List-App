@@ -97,7 +97,7 @@
            data-nome="{{ produto.nome }}"
            onclick="return window.confirmarRemocao('produto', this.dataset.nome) && (window.salvarScroll(), true)">❌</a>
 
-        <img src="{{ url_imagem(produto.imagem) }}" alt="{{ produto.nome }}">
+        <img src="{{ url_for('produtos.upload_file', filename=produto.imagem) }}" alt="{{ produto.nome }}">
         <br>
         <strong class="nome-produto">{{ produto.nome }}</strong>
 

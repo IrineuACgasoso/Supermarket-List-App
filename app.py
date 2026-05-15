@@ -11,18 +11,11 @@ from routes.main       import main_bp
 from routes.produtos   import produtos_bp
 from routes.categorias import categorias_bp
 
-def url_imagem(nome_arquivo):
-    if not nome_arquivo:
-        return ""
 
-    return url_for(
-        "produtos.upload_file",
-        filename=nome_arquivo
-    )
 
 def create_app():
     app = Flask(__name__)
-    app.jinja_env.globals["url_imagem"] = url_imagem
+
     app.config.from_object(Config)
 
     import os
