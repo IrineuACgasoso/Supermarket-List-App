@@ -88,7 +88,7 @@
                 title="Editar produto"
                 data-id="{{ produto.id }}"
                 data-nome="{{ produto.nome }}"
-                data-img="{{ url_imagem(produto.imagem) }}"
+                data-img="{{ url_for('produtos.upload_file', filename=produto.imagem) }}"
                 onclick="window.abrirModalEdicao(this)">✏️</button>
 
         <a href="{{ url_for('produtos.remover_catalogo', nome_do_produto=produto.nome) }}"
